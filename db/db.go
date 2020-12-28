@@ -11,24 +11,13 @@ type Database interface {
 	Set(string, string)
 }
 
-type atomicCounter struct {
-	Count uint64
-	M     *sync.Mutex
-}
-
-func newAtomicCounter() *atomicCounter {
-	return &atomicCounter{
-		Count: 0,
-		M:     &sync.Mutex{},
-	}
-}
-
 // Database is the in-memory database object that holds the data
 type database struct {
 	M    *sync.RWMutex
 	Data map[string]string
 }
 
+// Get returns the value stored in the map[key] or an error
 func (d *database) Get(key string) (string, error) {
 	d.M.RLock()
 	val, ok := d.Data[key]
@@ -39,6 +28,7 @@ func (d *database) Get(key string) (string, error) {
 	return val, nil
 }
 
+// Set sets the value of map[key] to value
 func (d *database) Set(key string, val string) {
 	d.M.Lock()
 	defer d.M.Unlock()
